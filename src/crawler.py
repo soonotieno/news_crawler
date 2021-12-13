@@ -40,26 +40,6 @@ class Crawler:
     def get_xpath(self):
         return self.xpath
 
-    # [start] it is going to be overridden --------------------
-
-    def select_search_options(self, driver):
-        sort_type = self.get_sort_type()
-        period_type = self.get_period_type()
-        xpath = self.get_xpath()
-        sort_type_xpath = xpath['sort_select_button']
-        period_type_xpath = xpath['period_select_button']
-        sort_type_select_button_elements = driver.find_elements_by_xpath(sort_type_xpath[sort_type])
-        sort_type_select_button_elements[0].click()
-        time.sleep(2)
-        option_button_elements = driver.find_elements_by_xpath(xpath['option_button'])
-        option_button_elements[0].click()
-        time.sleep(2)
-        period_type_select_button_elements = driver.find_elements_by_xpath(period_type_xpath[period_type])
-        period_type_select_button_elements[0].click()
-        time.sleep(2)
-
-    # [end] it is going to be overridden --------------------
-
     def get_article_info(self):
         xpath = self.get_xpath()
         article_list_xpath = xpath['article_list_per_page']
@@ -67,19 +47,43 @@ class Crawler:
         result_article_list = self.scrape_article_content(article_elements)
         return result_article_list
 
-    # noinspection PyMethodMayBeStatic
     def scrape_article_content(self, article_elements):
         article_info = {}
         articles_info = []
         for article in article_elements:
-            article_info['article_url'] = "article_url info"
-            article_info['press'] = "press info"
-            article_info['image'] = "image info"
-            article_info['title'] = "title info"
-            article_info['content'] = "content info"
-            article_info['publication_date'] = "publication_date info"
+            article_info['title'] = self.get_article_title(article)
+            article_info['content'] = self.get_article_content(article)
+            article_info['article_url'] = self.get_article_url(article)
+            article_info['press'] = self.get_article_press(article)
+            article_info['image'] = self.get_article_img(article)
+            article_info['publication_date'] = self.get_article_publication_date(article)
             articles_info.append(article_info.copy())
         return articles_info.copy()
+
+    # [start] it is going to be overridden --------------------
+
+    def get_article_title(self, article):
+        pass
+
+    def get_article_content(self, article):
+        pass
+
+    def get_article_url(self, article):
+        pass
+
+    def get_article_press(self, article):
+        pass
+
+    def get_article_img(self, article):
+        pass
+
+    def get_article_publication_date(self, article):
+        pass
+
+    def select_search_options(self):
+        pass
+
+    # [end] it is going to be overridden --------------------
 
     def input_search_keywords(self, search_keywords, keyword_index_position):
         driver = self.get_webdriver()
@@ -123,7 +127,6 @@ class Crawler:
         xpath = self.get_xpath()
         next_page_button_xpath = xpath['next_page_button']
         next_page_button_elements = driver.find_elements_by_xpath(next_page_button_xpath)
-        print('next_page_button_elements :', next_page_button_elements)
         if next_page_button_elements:
             return next_page_button_elements[0]
         else:
@@ -137,7 +140,6 @@ class Crawler:
         result_all_article_list = []
         while True:
             button_next = self.get_next_page_button_elements()
-            print('button_next :', button_next)
             self.scroll_down_to_end()
             result_article_per_page = self.get_article_info()
             result_all_article_list.extend(result_article_per_page.copy())
@@ -161,13 +163,12 @@ class Crawler:
                     self.input_search_keywords(search_keywords, current_keyword_index)
                     continue
 
-    def do_crawl(self, *args):
+    def do_crawl(self):
         driver = self.make_webdriver()
         search_keywords = self.search_keyword_list
         keyword_index_position = self.keyword_index_position
-        self.select_search_options(driver)
+        self.select_search_options()
         self.input_search_keywords(search_keywords, keyword_index_position)
         result = self.search_article_and_get_info(search_keywords)
         print('result article list :', result)
-
         driver.close()

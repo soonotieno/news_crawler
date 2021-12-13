@@ -1,4 +1,6 @@
-from crawlers.crawler import Crawler
+from crawler import Crawler
+from selenium.webdriver.common.by import By
+import time
 
 naver_search_options = {
     "access_url": "https://search.naver.com/search.naver?query=&where=news&ie=utf8&sm=nws_hty",
@@ -53,7 +55,55 @@ search_keyword_list = ['애플카', '도지코인', '한국정보공학']
 
 
 class GetNaverNewsCrawler(Crawler):
-    pass
+
+    def get_article_title(self, article):
+        article_title = article.find_element(By.XPATH, "./div/div/a").get_attribute('title')
+        print(article_title)
+        return article_title
+
+    def get_article_content(self, article):
+        article_content = article.find_element(By.XPATH, "./div/div/div[@class='news_dsc']/div/a").text
+        print(article_content)
+        return article_content
+
+    def get_article_url(self, article):
+        article_url = article.find_element(By.XPATH, "./div/div/a").get_attribute('href')
+        print(article_url)
+        return article_url
+
+    def get_article_img(self, article):
+        article_img = article.find_element(By.XPATH, "./div/a/img").get_attribute('src')
+        print(article_img)
+        return article_img
+
+    def get_article_press(self, article):
+        article_press = article.find_element(By.XPATH, "./div/div/div[@class='news_info']/div["
+                                                       "@class='info_group']/a").text
+        print(article_press)
+        return article_press
+
+    def get_article_publication_date(self, article):
+        article_publication_date = article.find_element(By.XPATH, "./div/div/div[@class='news_info']/div["
+                                                                  "@class='info_group']/span").text
+        print(article_publication_date)
+        return article_publication_date
+
+    def select_search_options(self):
+        driver = self.get_webdriver()
+        sort_type = self.get_sort_type()
+        period_type = self.get_period_type()
+        xpath = self.get_xpath()
+        sort_type_xpath = xpath['sort_select_button']
+        period_type_xpath = xpath['period_select_button']
+        sort_type_select_button_elements = driver.find_elements_by_xpath(sort_type_xpath[sort_type])
+        sort_type_select_button_elements[0].click()
+        time.sleep(2)
+        option_button_elements = driver.find_elements_by_xpath(xpath['option_button'])
+        option_button_elements[0].click()
+        time.sleep(2)
+        period_type_select_button_elements = driver.find_elements_by_xpath(period_type_xpath[period_type])
+        period_type_select_button_elements[0].click()
+        time.sleep(2)
 
 
 def news_crawl():
