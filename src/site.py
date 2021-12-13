@@ -53,7 +53,7 @@ google_search_options = {
 
 search_keyword_list = ['애플카', '도지코인', '한국정보공학']
 
-
+# 네이버 뉴스 크롤러!
 class GetNaverNewsCrawler(Crawler):
 
     def get_article_title(self, article):
@@ -89,13 +89,13 @@ class GetNaverNewsCrawler(Crawler):
         xpath = self.get_xpath()
         sort_type_xpath = xpath['sort_select_button']
         period_type_xpath = xpath['period_select_button']
-        sort_type_select_button_elements = driver.find_elements_by_xpath(sort_type_xpath[sort_type])
+        sort_type_select_button_elements = driver.find_elements(By.XPATH, sort_type_xpath[sort_type])
         sort_type_select_button_elements[0].click()
         time.sleep(2)
-        option_button_elements = driver.find_elements_by_xpath(xpath['option_button'])
+        option_button_elements = driver.find_elements(By.XPATH, xpath['option_button'])
         option_button_elements[0].click()
         time.sleep(2)
-        period_type_select_button_elements = driver.find_elements_by_xpath(period_type_xpath[period_type])
+        period_type_select_button_elements = driver.find_elements(By.XPATH, period_type_xpath[period_type])
         period_type_select_button_elements[0].click()
         time.sleep(2)
 

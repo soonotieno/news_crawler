@@ -40,17 +40,19 @@ class Crawler:
     def get_xpath(self):
         return self.xpath
 
-    def get_article_info(self):
+    def get_article_info(self, search_keywords):
         xpath = self.get_xpath()
         article_list_xpath = xpath['article_list_per_page']
         article_elements = self.find_elements_by_xpath(article_list_xpath)
-        result_article_list = self.scrape_article_content(article_elements)
+        result_article_list = self.scrape_article_content(article_elements, search_keywords)
         return result_article_list
 
-    def scrape_article_content(self, article_elements):
+    def scrape_article_content(self, article_elements, search_keywords):
         article_info = {}
         articles_info = []
+        current_index_position = self.keyword_index_position
         for article in article_elements:
+            article_info['current_keyword'] = search_keywords[current_index_position]
             article_info['title'] = self.get_article_title(article)
             article_info['content'] = self.get_article_content(article)
             article_info['article_url'] = self.get_article_url(article)
@@ -62,7 +64,8 @@ class Crawler:
         return articles_info.copy()
 
     def debug_article_scrape(self, article_info):
-        format = f"제목 : {article_info['title']}\n"
+        format = f"검색 키워드 : {article_info['current_keyword']}\n"
+        format += f"제목 : {article_info['title']}\n"
         format += f"내용 : {article_info['content']}\n"
         format += f"URL : {article_info['article_url']}\n"
         format += f"언론사 : {article_info['press']}\n"
@@ -152,7 +155,7 @@ class Crawler:
         while True:
             button_next = self.get_next_page_button_elements()
             self.scroll_down_to_end()
-            result_article_per_page = self.get_article_info()
+            result_article_per_page = self.get_article_info(search_keywords)
             result_all_article_list.extend(result_article_per_page.copy())
             if button_next:
                 if button_next.get_attribute('aria-disabled') == 'false':
