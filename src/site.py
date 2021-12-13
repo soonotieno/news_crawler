@@ -58,34 +58,28 @@ class GetNaverNewsCrawler(Crawler):
 
     def get_article_title(self, article):
         article_title = article.find_element(By.XPATH, "./div/div/a").get_attribute('title')
-        print(article_title)
         return article_title
 
     def get_article_content(self, article):
         article_content = article.find_element(By.XPATH, "./div/div/div[@class='news_dsc']/div/a").text
-        print(article_content)
         return article_content
 
     def get_article_url(self, article):
         article_url = article.find_element(By.XPATH, "./div/div/a").get_attribute('href')
-        print(article_url)
         return article_url
 
     def get_article_img(self, article):
         article_img = article.find_element(By.XPATH, "./div/a/img").get_attribute('src')
-        print(article_img)
         return article_img
 
     def get_article_press(self, article):
         article_press = article.find_element(By.XPATH, "./div/div/div[@class='news_info']/div["
                                                        "@class='info_group']/a").text
-        print(article_press)
         return article_press
 
     def get_article_publication_date(self, article):
         article_publication_date = article.find_element(By.XPATH, "./div/div/div[@class='news_info']/div["
                                                                   "@class='info_group']/span").text
-        print(article_publication_date)
         return article_publication_date
 
     def select_search_options(self):

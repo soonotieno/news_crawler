@@ -57,8 +57,19 @@ class Crawler:
             article_info['press'] = self.get_article_press(article)
             article_info['image'] = self.get_article_img(article)
             article_info['publication_date'] = self.get_article_publication_date(article)
+            print(self.debug_article_scrape(article_info))
             articles_info.append(article_info.copy())
         return articles_info.copy()
+
+    def debug_article_scrape(self, article_info):
+        format = f"제목 : {article_info['title']}\n"
+        format += f"내용 : {article_info['content']}\n"
+        format += f"URL : {article_info['article_url']}\n"
+        format += f"언론사 : {article_info['press']}\n"
+        format += f"이미지 : {article_info['image']}\n"
+        format += f"배포일 : {article_info['publication_date']}\n"
+        format += f"-------------------------------------------------------------------------"
+        return format
 
     # [start] it is going to be overridden --------------------
 
