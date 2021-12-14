@@ -144,7 +144,7 @@ class Crawler:
         if next_page_button_elements:
             return next_page_button_elements[0]
         else:
-            return []
+            return None
 
     def increase_keyword_index(self):
         self.keyword_index_position += 1
@@ -153,29 +153,41 @@ class Crawler:
     def search_article_and_get_info(self, search_keywords):
         result_all_article_list = []
         while True:
-            button_next = self.get_next_page_button_elements()
             self.scroll_down_to_end()
+            button_next = self.get_next_page_button_elements()
             result_article_per_page = self.get_article_info(search_keywords)
             result_all_article_list.extend(result_article_per_page.copy())
             if button_next:
-                if button_next.get_attribute('aria-disabled') == 'false':
-                    self.click_next_page_button()
-                else:
-                    current_keyword_index = self.increase_keyword_index()
-                    self.scroll_up_to_end()
-                    if current_keyword_index >= len(search_keywords):
-                        return result_all_article_list.copy()
-                    else:
-                        self.input_search_keywords(search_keywords, current_keyword_index)
-                        continue
+                print('button_next :', button_next)
+                self.click_next_page_button()
             else:
                 current_keyword_index = self.increase_keyword_index()
                 self.scroll_up_to_end()
                 if current_keyword_index >= len(search_keywords):
                     return result_all_article_list.copy()
-                else:
+                else :
                     self.input_search_keywords(search_keywords, current_keyword_index)
                     continue
+
+            # if button_next:
+            #     if button_next.get_attribute('aria-disabled') == 'false':
+            #         self.click_next_page_button()
+            #     else:
+            #         current_keyword_index = self.increase_keyword_index()
+            #         self.scroll_up_to_end()
+            #         if current_keyword_index >= len(search_keywords):
+            #             return result_all_article_list.copy()
+            #         else:
+            #             self.input_search_keywords(search_keywords, current_keyword_index)
+            #             continue
+            # else:
+            #     current_keyword_index = self.increase_keyword_index()
+            #     self.scroll_up_to_end()
+            #     if current_keyword_index >= len(search_keywords):
+            #         return result_all_article_list.copy()
+            #     else:
+            #         self.input_search_keywords(search_keywords, current_keyword_index)
+            #         continue
 
     def do_crawl(self):
         driver = self.make_webdriver()
