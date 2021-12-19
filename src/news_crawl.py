@@ -1,8 +1,11 @@
 from crawler import Crawler
+from base import BaseNewsCrawler
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 import time
 
 naver_search_options = {
+    "crawler_type": "news_crawler",
     "company": "naver",
     "access_url": "https://search.naver.com/search.naver?query=&where=news&ie=utf8&sm=nws_hty",
     "sort_type": "new",  # 관련도순:relation / 최신순:new / 오래된순:old
@@ -30,6 +33,7 @@ naver_search_options = {
 }
 
 google_search_options = {
+    "crawler_type": "news_crawler",
     "company": "google",
     "access_url": "https://www.google.com/search?q=%22%22&source=lnms&tbm=nws&sa=X",
     "sort_type": "korean_web",  # 한국어 웹 : korean_web / 웹 검색 : web_search
@@ -53,11 +57,11 @@ google_search_options = {
     }
 }
 
-search_keyword_list = ['애플카', '도지코인', '한국정보공학']
+search_keyword_list = ['비트코인', '도지코인', '한국정보공학']
 
 
 # 구글 뉴스 크롤러!
-class GetGoogleNewsCrawler(Crawler):
+class GetGoogleNewsCrawler(BaseNewsCrawler):
 
     def get_article_title(self, article):
         article_title = article.find_element(By.XPATH,
@@ -74,9 +78,10 @@ class GetGoogleNewsCrawler(Crawler):
         return article_url
 
     def get_article_img(self, article):
-        article_img = article.find_element(By.XPATH,
-                                           "./g-card/div/div/a/div/div[@class='FAkayc']/div/g-img/img").get_attribute(
-            'src')
+        try:
+            article_img = article.find_element(By.XPATH, "./g-card/div/div/a/div/div[@class='FAkayc']/div/g-img/img").get_attribute('src')
+        except NoSuchElementException:
+            article_img = 'NoSuchElement'
         return article_img
 
     def get_article_press(self, article):
@@ -114,7 +119,7 @@ class GetGoogleNewsCrawler(Crawler):
 
 
 # 네이버 뉴스 크롤러!
-class GetNaverNewsCrawler(Crawler):
+class GetNaverNewsCrawler(BaseNewsCrawler):
 
     def get_article_title(self, article):
         article_title = article.find_element(By.XPATH, "./div/div/a").get_attribute('title')
@@ -129,7 +134,10 @@ class GetNaverNewsCrawler(Crawler):
         return article_url
 
     def get_article_img(self, article):
-        article_img = article.find_element(By.XPATH, "./div/a/img").get_attribute('src')
+        try:
+            article_img = article.find_element(By.XPATH, "./div/a/img").get_attribute('src')
+        except NoSuchElementException:
+            article_img = 'NoSuchElement'
         return article_img
 
     def get_article_press(self, article):
@@ -165,9 +173,9 @@ def news_crawl():
     product_list = crawler.do_crawl()
     print(product_list)
 
-    # crawler = GetGoogleNewsCrawler(search_keyword_list=search_keyword_list, search_options=google_search_options)
-    # product_list = crawler.do_crawl()
-    # print(product_list)
+    crawler = GetGoogleNewsCrawler(search_keyword_list=search_keyword_list, search_options=google_search_options)
+    product_list = crawler.do_crawl()
+    print(product_list)
 
 
 if __name__ == '__main__':

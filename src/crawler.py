@@ -1,15 +1,17 @@
 import time
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 
 
 class Crawler:
-    def __init__(self, search_keyword_list, search_options):
+    def __init__(self, search_options, search_keyword_list):
         self.webdriver = None
-        self.keyword_index_position = 0
+        self.index_position = 0
         self.search_keyword_list = search_keyword_list
         self.search_options = search_options
         self.xpath = search_options['xpath']
+
+    def get_crawler_type(self):
+        return self.search_options['crawler_type']
 
     def set_webdriver(self, webdriver):
         self.webdriver = webdriver
@@ -40,76 +42,16 @@ class Crawler:
     def get_xpath(self):
         return self.xpath
 
-    def get_article_info(self, search_keywords):
-        xpath = self.get_xpath()
-        article_list_xpath = xpath['article_list_per_page']
-        article_elements = self.find_elements_by_xpath(article_list_xpath)
-        result_article_list = self.scrape_article_content(article_elements, search_keywords)
-        return result_article_list
-
     def scrape_article_content(self, article_elements, search_keywords):
-        article_info = {}
-        articles_info = []
-        current_index_position = self.keyword_index_position
-        for article in article_elements:
-            article_info['current_keyword'] = search_keywords[current_index_position]
-            article_info['title'] = self.get_article_title(article)
-            article_info['content'] = self.get_article_content(article)
-            article_info['article_url'] = self.get_article_url(article)
-            article_info['press'] = self.get_article_press(article)
-            article_info['image'] = self.get_article_img(article)
-            article_info['publication_date'] = self.get_article_publication_date(article)
-            print(self.debug_article_scrape(article_info))
-            articles_info.append(article_info.copy())
-        return articles_info.copy()
+        pass
 
     def debug_article_scrape(self, article_info):
-        format = f"검색 키워드 : {article_info['current_keyword']}\n"
-        format += f"제목 : {article_info['title']}\n"
-        format += f"내용 : {article_info['content']}\n"
-        format += f"URL : {article_info['article_url']}\n"
-        format += f"언론사 : {article_info['press']}\n"
-        format += f"이미지 : {article_info['image']}\n"
-        format += f"배포일 : {article_info['publication_date']}\n"
-        format += f"-------------------------------------------------------------------------"
-        return format
-
-    # [start] it is going to be overridden --------------------
-
-    def get_article_title(self, article):
         pass
 
-    def get_article_content(self, article):
+    def input_search_keywords(self, search_keywords, index_position):
         pass
 
-    def get_article_url(self, article):
-        pass
-
-    def get_article_press(self, article):
-        pass
-
-    def get_article_img(self, article):
-        pass
-
-    def get_article_publication_date(self, article):
-        pass
-
-    def select_search_options(self):
-        pass
-
-    # [end] it is going to be overridden --------------------
-
-    def input_search_keywords(self, search_keywords, keyword_index_position):
-        driver = self.get_webdriver()
-        xpath = self.get_xpath()
-        search_box_xpath = xpath['search_box']
-        search_box_elements = driver.find_elements_by_xpath(search_box_xpath)
-        search_box_elements[0].clear()
-        search_box_elements[0].send_keys(search_keywords[keyword_index_position])
-        search_box_elements[0].send_keys(Keys.ENTER)
-        time.sleep(2)
-
-    def make_article_indices_per_page(self):
+    def make_indices_per_page(self):
         xpath = self.get_xpath()
         current_article_xpath = xpath['article_list_per_page']
         current_article_elements = self.find_elements_by_xpath(current_article_xpath)
@@ -121,12 +63,12 @@ class Crawler:
         elements = driver.find_elements_by_xpath(xpath)
         return elements
 
-    def scroll_down_to_end(self):
+    def scroll_up_to_end(self):
         driver = self.get_webdriver()
         driver.execute_script("window.scrollTo(0, -document.body.scrollHeight)")
         time.sleep(2)
 
-    def scroll_up_to_end(self):
+    def scroll_down_to_end(self):
         driver = self.get_webdriver()
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
         time.sleep(2)
@@ -146,55 +88,42 @@ class Crawler:
         else:
             return None
 
-    def increase_keyword_index(self):
-        self.keyword_index_position += 1
-        return self.keyword_index_position
+    def select_search_options(self):
+        pass
+
+    def increase_index(self):
+        self.index_position += 1
+        return self.index_position
+
+    def get_article_info_per_page(self, search_keywords):
+        pass
 
     def search_article_and_get_info(self, search_keywords):
-        result_all_article_list = []
-        while True:
-            self.scroll_down_to_end()
-            button_next = self.get_next_page_button_elements()
-            result_article_per_page = self.get_article_info(search_keywords)
-            result_all_article_list.extend(result_article_per_page.copy())
-            if button_next:
-                print('button_next :', button_next)
-                self.click_next_page_button()
-            else:
-                current_keyword_index = self.increase_keyword_index()
-                self.scroll_up_to_end()
-                if current_keyword_index >= len(search_keywords):
-                    return result_all_article_list.copy()
-                else :
-                    self.input_search_keywords(search_keywords, current_keyword_index)
-                    continue
+        pass
 
-            # if button_next:
-            #     if button_next.get_attribute('aria-disabled') == 'false':
-            #         self.click_next_page_button()
-            #     else:
-            #         current_keyword_index = self.increase_keyword_index()
-            #         self.scroll_up_to_end()
-            #         if current_keyword_index >= len(search_keywords):
-            #             return result_all_article_list.copy()
-            #         else:
-            #             self.input_search_keywords(search_keywords, current_keyword_index)
-            #             continue
-            # else:
-            #     current_keyword_index = self.increase_keyword_index()
-            #     self.scroll_up_to_end()
-            #     if current_keyword_index >= len(search_keywords):
-            #         return result_all_article_list.copy()
-            #     else:
-            #         self.input_search_keywords(search_keywords, current_keyword_index)
-            #         continue
+    # [Start] NFT Crawler Functions -------------------------------------------
+    def get_nft_info_and_set_period(self, index_position):
+        pass
+
+    def get_nft_info_per_page(self, search_keywords):
+        pass
+    # [End] NFT Crawler Functions -------------------------------------------
 
     def do_crawl(self):
         driver = self.make_webdriver()
-        search_keywords = self.search_keyword_list
-        keyword_index_position = self.keyword_index_position
-        self.select_search_options()
-        self.input_search_keywords(search_keywords, keyword_index_position)
-        result = self.search_article_and_get_info(search_keywords)
-        print('result article list :', result)
+        crawler_type = self.get_crawler_type()
+        index_position = self.index_position
+        if crawler_type == 'news_crawler':
+            search_keywords = self.search_keyword_list
+            self.select_search_options()
+            self.input_search_keywords(search_keywords, index_position)
+            result = self.search_article_and_get_info(search_keywords)
+            print('result article list :', result)
+        elif crawler_type == 'nft_crawler':
+            self.select_search_options()
+            self.scroll_down_to_end()
+            result = self.get_nft_info_and_set_period(index_position)
+            print('result article list :', result)
+        else:
+            pass
         driver.close()
